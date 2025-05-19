@@ -113,7 +113,11 @@ const CloseDay = () => {
         ) : (
           <div>Carregando faturas...</div>
         )}
-        <CloseDayList closeDays={closeDays} />
+        {closeDays ? (
+          <CloseDayList closeDays={closeDays} />
+        ) : (
+          <div>Carregando fechamentos do dia</div>
+        )}
       </Stack>
 
       <InvoiceModal
