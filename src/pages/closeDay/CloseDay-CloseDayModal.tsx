@@ -33,7 +33,6 @@ const CloseDayModal: React.FC<CloseDayModalProps> = ({
   return (
     <Modal
       open={isOpen}
-      onClose={onRequestClose}
       aria-labelledby="close-day-modal-title"
       sx={{ backdropFilter: "blur(5px)" }}
     >
@@ -85,11 +84,11 @@ const CloseDayModal: React.FC<CloseDayModalProps> = ({
             variant="outlined"
           />
           <Stack direction="row" spacing={2} justifyContent="flex-end">
-            <Button variant="outlined" onClick={onRequestClose}>
-              Cancelar
-            </Button>
             <Button variant="contained" color="primary" onClick={handleSave}>
               Salvar fechamento
+            </Button>
+            <Button variant="outlined" onClick={onRequestClose}>
+              Cancelar
             </Button>
           </Stack>
         </Stack>

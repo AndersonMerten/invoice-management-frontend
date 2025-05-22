@@ -1,5 +1,8 @@
+import DeleteIcon from "@mui/icons-material/Delete";
 import {
+  Box,
   Divider,
+  IconButton,
   List,
   ListItem,
   ListItemText,
@@ -7,13 +10,24 @@ import {
   Typography,
 } from "@mui/material";
 import React from "react";
+import { CashUpApi } from "../../api/cashupApi";
 import { CashUp } from "../../api/types/cashup";
 
 interface CloseDayListProps {
   closeDays: CashUp[];
+  onDelete: () => void;
 }
 
-const CloseDayList: React.FC<CloseDayListProps> = ({ closeDays }) => {
+const CloseDayList: React.FC<CloseDayListProps> = ({ closeDays, onDelete }) => {
+  const handleDelete = async (closeDay: CashUp) => {
+    try {
+      await CashUpApi.delete(String(closeDay.id));
+      onDelete();
+    } catch (err) {
+      console.error("Erro ao deletar o fechamento do dia:", err);
+    }
+  };
+
   return (
     <Paper elevation={3} sx={{ p: 3 }}>
       <Typography variant="h6" component="h2" gutterBottom>
@@ -21,34 +35,42 @@ const CloseDayList: React.FC<CloseDayListProps> = ({ closeDays }) => {
       </Typography>
       <List>
         {closeDays.map((closeDay, index) => (
-          <React.Fragment key={index}>
+          <React.Fragment key={closeDay.id}>
             <ListItem>
               <ListItemText
                 primary={closeDay.date}
                 secondary={
-                  <>
+                  <Box component="span">
                     <Typography
                       component="span"
                       variant="body2"
                       color="text.secondary"
+                      display="block"
                     >
                       Maquininha: R$ {closeDay.card.toFixed(2)} | PIX: R${" "}
                       {closeDay.pix.toFixed(2)} | Outros: R$
                       {closeDay.others.toFixed(2)}
                     </Typography>
                     <Typography
-                      component="div"
+                      component="span"
                       variant="body1"
                       color="secondary.light"
+                      display="block"
                     >
                       Total: R${" "}
                       {(closeDay.pix + closeDay.card + closeDay.others).toFixed(
                         2
                       )}
                     </Typography>
-                  </>
+                  </Box>
                 }
               />
+              <IconButton
+                aria-label="delete"
+                onClick={() => handleDelete(closeDay)}
+              >
+                <DeleteIcon />
+              </IconButton>
             </ListItem>
             {index < closeDays.length - 1 && <Divider />}
           </React.Fragment>

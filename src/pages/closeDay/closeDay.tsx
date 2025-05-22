@@ -20,9 +20,12 @@ const CloseDay = () => {
   const [isInvoiceModalOpen, setInvoiceModalOpen] = useState(false);
   const [isCloseDayModalOpen, setCloseDayModalOpen] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [isFetching, setisFetching] = useState(false);
 
   const fetchData = async () => {
+    setSaldo(0);
     try {
+      setisFetching(true);
       // faz o get de invoices, saldo positivo
       const response = await InvoiceApi.getAll();
       setInvoices(response);
@@ -41,6 +44,7 @@ const CloseDay = () => {
         const totalAmount = cashup.card + cashup.pix + cashup.others;
         setSaldo((prevSaldo) => prevSaldo - totalAmount);
       });
+      setisFetching(false);
     } catch (err) {
       setError(err instanceof Error ? err.message : "Erro desconhecido");
     }
@@ -55,11 +59,11 @@ const CloseDay = () => {
         client_name: clientName,
         value: value,
       };
-      setInvoices((prevInvoices) => [...prevInvoices, newInvoice]);
+      const response: Invoice = await InvoiceApi.create(newInvoice);
+      console.log("Fatura criada:", response);
+      setInvoices((prevInvoices) => [...prevInvoices, response]);
       setSaldo((prevSaldo) => prevSaldo + value);
       setInvoiceModalOpen(false);
-      const response = await InvoiceApi.create(newInvoice);
-      console.log("Fatura criada:", response);
     } catch (err) {
       console.error("Erro ao criar fatura:", err);
     }
@@ -75,10 +79,10 @@ const CloseDay = () => {
         card: card,
         others: others,
       };
-      setCloseDays((prevCloseDays) => [...prevCloseDays, newCloseDay]);
+      const response = await CashUpApi.create(newCloseDay);
+      setCloseDays((prevCloseDays) => [...prevCloseDays, response]);
       setSaldo((prevSaldo) => prevSaldo - (pix + card + others));
       setCloseDayModalOpen(false);
-      const response = await CashUpApi.create(newCloseDay);
       console.log("Fechamento do dia criado:", response);
     } catch (err) {
       console.error("Erro ao criar fatura:", err);
@@ -88,7 +92,7 @@ const CloseDay = () => {
   return (
     <Container maxWidth="md" sx={{ py: 4 }}>
       <Paper elevation={3} sx={{ p: 3, mb: 4 }}>
-        <Header saldo={saldo} />
+        <Header saldo={saldo} isLoading={isFetching} />
         <Stack direction="row" spacing={2} sx={{ mt: 2 }}>
           <Button
             variant="contained"
@@ -109,12 +113,12 @@ const CloseDay = () => {
 
       <Stack spacing={3}>
         {invoices ? (
-          <InvoiceList invoices={invoices} />
+          <InvoiceList invoices={invoices} onDelete={fetchData} />
         ) : (
           <div>Carregando faturas...</div>
         )}
         {closeDays ? (
-          <CloseDayList closeDays={closeDays} />
+          <CloseDayList closeDays={closeDays} onDelete={fetchData} />
         ) : (
           <div>Carregando fechamentos do dia</div>
         )}
