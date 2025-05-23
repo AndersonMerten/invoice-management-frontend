@@ -6,29 +6,42 @@ import {
   ListItem,
   ListItemText,
   Paper,
+  Skeleton,
   Typography,
 } from "@mui/material";
-import React from "react";
+import React, { useState } from "react";
 import { InvoiceApi } from "../../api/invoiceApi";
 import { Invoice } from "../../api/types/invoice";
 
 interface InvoiceListProps {
   invoices: Invoice[];
   onDelete: () => void;
+  isFetching: boolean;
 }
 
-const InvoiceList: React.FC<InvoiceListProps> = ({ invoices, onDelete }) => {
+const InvoiceList: React.FC<InvoiceListProps> = ({
+  invoices,
+  onDelete,
+  isFetching,
+}) => {
+  const [deletingId, setDeletingId] = useState<number | null>(null);
+
   const handleDelete = async (invoice: Invoice) => {
-    try {
-      await InvoiceApi.delete(String(invoice.id));
-      console.log(
-        "Nota fiscal em nome de " +
-          invoice.client_name +
-          " foi deletada com sucesso!"
-      );
-      onDelete();
-    } catch (err) {
-      console.error("Erro ao deletar a nota fiscal:", err);
+    if (invoice.id) {
+      try {
+        setDeletingId(invoice.id);
+        await InvoiceApi.delete(String(invoice.id));
+        console.log(
+          "Nota fiscal em nome de " +
+            invoice.client_name +
+            " foi deletada com sucesso!"
+        );
+        onDelete();
+      } catch (err) {
+        console.error("Erro ao deletar a nota fiscal:", err);
+      } finally {
+        setDeletingId(null);
+      }
     }
   };
 
@@ -41,13 +54,21 @@ const InvoiceList: React.FC<InvoiceListProps> = ({ invoices, onDelete }) => {
         {invoices.map((invoice, index) => (
           <React.Fragment key={invoice.id}>
             <ListItem>
-              <ListItemText
-                primary={invoice.client_name}
-                secondary={`R$ ${invoice.value.toFixed(2)}`}
-              />
+              {deletingId === invoice.id || isFetching ? (
+                <ListItemText
+                  primary={<Skeleton variant="text" width="40%" />}
+                  secondary={<Skeleton variant="text" width="20%" />}
+                />
+              ) : (
+                <ListItemText
+                  primary={invoice.client_name}
+                  secondary={`R$ ${invoice.value.toFixed(2)}`}
+                />
+              )}
               <IconButton
                 aria-label="delete"
                 onClick={() => handleDelete(invoice)}
+                disabled={deletingId === invoice.id || isFetching}
               >
                 <DeleteIcon />
               </IconButton>

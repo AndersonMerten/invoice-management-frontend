@@ -113,12 +113,20 @@ const CloseDay = () => {
 
       <Stack spacing={3}>
         {invoices ? (
-          <InvoiceList invoices={invoices} onDelete={fetchData} />
+          <InvoiceList
+            invoices={invoices}
+            onDelete={fetchData}
+            isFetching={isFetching}
+          />
         ) : (
           <div>Carregando faturas...</div>
         )}
         {closeDays ? (
-          <CloseDayList closeDays={closeDays} onDelete={fetchData} />
+          <CloseDayList
+            closeDays={closeDays}
+            onDelete={fetchData}
+            isFetching={isFetching}
+          />
         ) : (
           <div>Carregando fechamentos do dia</div>
         )}
