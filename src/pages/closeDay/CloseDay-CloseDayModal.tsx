@@ -14,12 +14,14 @@ interface CloseDayModalProps {
   isOpen: boolean;
   onRequestClose: () => void;
   onSave: (pix: number, card: number, others: number) => void;
+  isLoading?: boolean;
 }
 
 const CloseDayModal: React.FC<CloseDayModalProps> = ({
   isOpen,
   onRequestClose,
   onSave,
+  isLoading
 }) => {
   const [pix, setPix] = useState("");
   const [card, setCard] = useState("");
@@ -143,12 +145,13 @@ const CloseDayModal: React.FC<CloseDayModalProps> = ({
               <Button 
                 variant="contained" 
                 onClick={handleSave}
+                disabled={isLoading}
                 sx={{
                   backgroundColor: '#f44336',
                   '&:hover': { backgroundColor: '#d32f2f' }
                 }}
               >
-                Salvar Fechamento
+                {isLoading ? "Salvando fechamento..." : "Salvar"}
               </Button>
               <Button 
                 variant="outlined" 

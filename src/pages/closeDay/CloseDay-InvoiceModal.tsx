@@ -14,12 +14,14 @@ interface InvoiceModalProps {
   isOpen?: boolean;
   onClose: () => void;
   onSave: (clientName: string, value: number) => void;
+  isLoading?: boolean;
 }
 
 const InvoiceModal = ({
   isOpen = false,
   onClose,
   onSave,
+  isLoading
 }: InvoiceModalProps) => {
   const [clientName, setClientName] = useState("");
   const [invoiceValue, setInvoiceValue] = useState("");
@@ -125,12 +127,13 @@ const InvoiceModal = ({
               <Button 
                 variant="contained" 
                 onClick={handleSave}
+                disabled={isLoading}
                 sx={{
                   backgroundColor: '#4caf50',
                   '&:hover': { backgroundColor: '#45a049' }
                 }}
               >
-                Salvar Nota Fiscal
+                {isLoading ? 'Salvando...' : 'Salvar'}
               </Button>
               <Button 
                 variant="outlined" 

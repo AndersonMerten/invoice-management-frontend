@@ -1,6 +1,7 @@
 import DeleteIcon from "@mui/icons-material/Delete";
 import {
   Box,
+  Collapse,
   Divider,
   IconButton,
   List,
@@ -13,6 +14,7 @@ import {
 import React, { useState } from "react";
 import { CashUpApi } from "../../api/cashupApi";
 import { CashUp } from "../../api/types/cashup";
+import { ExpandLess, ExpandMore } from "@mui/icons-material";
 
 interface CloseDayListProps {
   closeDays: CashUp[];
@@ -26,6 +28,11 @@ const CloseDayList: React.FC<CloseDayListProps> = ({
   isFetching,
 }) => {
   const [idDeleting, setIdDeleting] = useState<Number | null>(null);
+  const [open, setOpen] = useState(true);
+
+  const handleClick = () => {
+    setOpen(!open);
+  };
 
   const handleDelete = async (closeDay: CashUp) => {
     if (closeDay.id) {
@@ -42,63 +49,73 @@ const CloseDayList: React.FC<CloseDayListProps> = ({
 
   return (
     <Paper elevation={3} sx={{ p: 3 }}>
-      <Typography variant="h6" component="h2" gutterBottom>
+      <Typography
+        variant="h6"
+        component="h2"
+        gutterBottom
+        onClick={handleClick}
+        sx={{ display: "flex", alignItems: "center", cursor: "pointer" }}
+      >
         Fechamentos do Dia
+        {open ? <ExpandLess sx={{ ml: 1 }} /> : <ExpandMore sx={{ ml: 1 }} />}
       </Typography>
-      <List>
-        {closeDays.map((closeDay, index) => (
-          <React.Fragment key={closeDay.id}>
-            <ListItem>
-              {idDeleting === closeDay.id ? (
-                <ListItemText
-                  primary={<Skeleton variant="text" width="40%" />}
-                  secondary={<Skeleton variant="text" width="20%" />}
-                />
-              ) : (
-                <>
+      <Collapse in={open} timeout="auto" unmountOnExit>
+        <List>
+          {closeDays.map((closeDay, index) => (
+            <React.Fragment key={closeDay.id}>
+              <ListItem>
+                {idDeleting === closeDay.id ? (
                   <ListItemText
-                    primary={closeDay.date}
-                    secondary={
-                      <Box component="span">
-                        <Typography
-                          component="span"
-                          variant="body2"
-                          color="text.secondary"
-                          display="block"
-                        >
-                          Maquininha: R$ {closeDay.card.toFixed(2)} | PIX: R${" "}
-                          {closeDay.pix.toFixed(2)} | Outros: R$
-                          {closeDay.others.toFixed(2)}
-                        </Typography>
-                        <Typography
-                          component="span"
-                          variant="body1"
-                          color="secondary.light"
-                          display="block"
-                        >
-                          Total: R${" "}
-                          {(
-                            closeDay.pix +
-                            closeDay.card +
-                            closeDay.others
-                          ).toFixed(2)}
-                        </Typography>
-                      </Box>
-                    }
+                    primary={<Skeleton variant="text" width="40%" />}
+                    secondary={<Skeleton variant="text" width="20%" />}
                   />
-                  <IconButton
-                    aria-label="delete"
-                    onClick={() => handleDelete(closeDay)}
-                  >
-                    <DeleteIcon />
-                  </IconButton>
-                </>
-              )}
-            </ListItem>
-            {index < closeDays.length - 1 && <Divider />}
-          </React.Fragment>
-        ))}
-      </List>
+                ) : (
+                  <>
+                    <ListItemText
+                      primary={closeDay.date}
+                      secondary={
+                        <Box component="span">
+                          <Typography
+                            component="span"
+                            variant="body2"
+                            color="text.secondary"
+                            display="block"
+                          >
+                            Maquininha: R$ {closeDay.card.toFixed(2)} | PIX: R${" "}
+                            {closeDay.pix.toFixed(2)} | Outros: R$
+                            {closeDay.others.toFixed(2)}
+                          </Typography>
+                          <Typography
+                            component="span"
+                            variant="body1"
+                            color="secondary.light"
+                            display="block"
+                          >
+                            Total: R${" "}
+                            {(
+                              closeDay.pix +
+                              closeDay.card +
+                              closeDay.others
+                            ).toFixed(2)}
+                          </Typography>
+                        </Box>
+                      }
+                    />
+                    <IconButton
+                      aria-label="delete"
+                      onClick={() => handleDelete(closeDay)}
+                      disabled={isFetching}
+                    >
+                      <DeleteIcon />
+                    </IconButton>
+                  </>
+                )}
+              </ListItem>
+              {index < closeDays.length - 1 && <Divider />}
+            </React.Fragment>
+          ))}
+        </List>
+      </Collapse>
     </Paper>
   );
 };
