@@ -89,6 +89,25 @@ const CloseDay = () => {
     }
   };
 
+  const handleCloseMonth = async () => {
+    const confirmed = window.confirm(
+      "Tem certeza que deseja fechar o mês?\n\nIsso vai apagar todas as notas fiscais e fechamentos do dia atuais e gerar o saldo final do mês."
+    );
+    if (!confirmed) return;
+
+    setIsLoading(true);
+    try {
+      await BalanceApi.closeMonth();
+      await fetchData();
+      setHandleError(null);
+    } catch (err) {
+      console.error("Erro ao fechar o mês:", err);
+      setHandleError("Erro ao fechar o mês. Tente novamente.");
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
   const handleCloseDay = async (pix: number, card: number, others: number) => {
     setIsLoading(true);
     try {
@@ -135,6 +154,14 @@ const CloseDay = () => {
             onClick={() => setCloseDayModalOpen(true)}
           >
             Fechar o Dia
+          </Button>
+          <Button
+            variant="outlined"
+            color="error"
+            onClick={handleCloseMonth}
+            disabled={isLoading}
+          >
+            Fechar o Mês
           </Button>
         </Stack>
       </Paper>
